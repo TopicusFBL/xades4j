@@ -46,11 +46,11 @@ public class XmlSignaturePolicyIdentifierType
 
     /**
      * Gets the value of the signaturePolicyId property.
-     * 
+     *
      * @return
      *     possible object is
      *     {@link XmlSignaturePolicyIdType }
-     *     
+     *
      */
     public XmlSignaturePolicyIdType getSignaturePolicyId()
     {
@@ -59,11 +59,11 @@ public class XmlSignaturePolicyIdentifierType
 
     /**
      * Sets the value of the signaturePolicyId property.
-     * 
+     *
      * @param value
      *     allowed object is
      *     {@link XmlSignaturePolicyIdType }
-     *     
+     *
      */
     public void setSignaturePolicyId(XmlSignaturePolicyIdType value)
     {

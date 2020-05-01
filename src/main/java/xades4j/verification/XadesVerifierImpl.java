@@ -32,6 +32,8 @@ import org.apache.xml.security.signature.XMLSignature;
 import org.apache.xml.security.signature.XMLSignatureException;
 import org.apache.xml.security.utils.resolver.ResourceResolver;
 import org.apache.xml.security.utils.resolver.implementations.ResolverAnonymous;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import xades4j.properties.QualifyingProperty;
@@ -77,6 +79,8 @@ class XadesVerifierImpl implements XadesVerifier
     private final Set<CustomSignatureVerifier> customSigVerifiers;
     private final X500NameStyleProvider x500NameStyleProvider;
     private boolean secureValidation;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(XadesVerifierImpl.class);
 
     @Inject
     protected XadesVerifierImpl(
@@ -309,7 +313,10 @@ class XadesVerifierImpl implements XadesVerifier
 
         try
         {
-            if (signature.checkSignatureValue(validationCert))
+            boolean checkSignatureValue = signature.checkSignatureValue(validationCert);
+
+            LOGGER.warn("Check signature [id:{}] is: [{}]", signature.getId(), checkSignatureValue);
+            if (checkSignatureValue)
             {
                 return;
             }

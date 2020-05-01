@@ -18,6 +18,10 @@ package xades4j.properties;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Collection;
+
+import xades4j.algorithms.Algorithm;
+import xades4j.utils.CollectionUtils;
 
 /**
  * An explicit and unambiguous identifier of a signature policy.
@@ -30,6 +34,7 @@ public final class SignaturePolicyIdentifierProperty extends SignaturePolicyBase
     private byte[] policyDocumentData;
     private InputStream policyDocumentStream;
     private String locationUrl;
+    private Collection<Algorithm> transforms;
 
     /**
      * @param identifier the policy identifier
@@ -104,5 +109,39 @@ public final class SignaturePolicyIdentifierProperty extends SignaturePolicyBase
     public String getLocationUrl()
     {
         return locationUrl;
+    }
+
+    /**
+     * Registers a transform to be applied to the policy file at the signature
+     * generation. Each transform will result in a {@code ds:Transform} element
+     * within the {@code ds:SignaturePolicyIdentifier} resulting from the current
+     * policy identifier.
+     *
+     * @param transform the transform to be applied
+     * @return the current instance
+     *
+     * @throws NullPointerException if {@code transform} is {@code null}
+     * @throws IllegalStateException if the transform (instance) is already
+     *                                  present
+     */
+    public final SignaturePolicyIdentifierProperty withTransform(Algorithm transform)
+    {
+        if (null == transform)
+        {
+            throw new NullPointerException("Transform cannot be null");
+        }
+
+        transforms = CollectionUtils.newIfNull(transforms, 2);
+        if (!transforms.add(transform))
+        {
+            throw new IllegalStateException("Transform was already added");
+        }
+
+        return this;
+    }
+
+    public Collection<Algorithm> getTransforms()
+    {
+        return CollectionUtils.emptyIfNull(transforms);
     }
 }

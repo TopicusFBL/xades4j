@@ -19,13 +19,13 @@ package xades4j.xml.unmarshalling;
 import java.util.List;
 import javax.xml.bind.JAXBElement;
 import xades4j.properties.QualifyingProperty;
-import xades4j.properties.SignaturePolicyBase;
 import xades4j.properties.data.SignaturePolicyData;
 import xades4j.xml.bind.xades.XmlAnyType;
 import xades4j.xml.bind.xades.XmlSigPolicyQualifiersListType;
 import xades4j.xml.bind.xades.XmlSignaturePolicyIdType;
 import xades4j.xml.bind.xades.XmlSignaturePolicyIdentifierType;
 import xades4j.xml.bind.xades.XmlSignedSignaturePropertiesType;
+import xades4j.xml.bind.xmldsig.XmlTransformsType;
 
 /**
  *
@@ -51,14 +51,14 @@ class FromXmlSignaturePolicyConverter implements SignedSigPropFromXmlConv
 
         XmlSignaturePolicyIdType xmlPolicyId = xmlSigPolicy.getSignaturePolicyId();
 
-        if (xmlPolicyId.getTransforms() != null)
-            throw new PropertyUnmarshalException("Signature policy transforms are not supported", SignaturePolicyBase.PROP_NAME);
+        XmlTransformsType xmlTransforms = xmlPolicyId.getTransforms();
 
         propertyDataCollector.setSignaturePolicy(new SignaturePolicyData(
                 FromXmlUtils.getObjectIdentifier(xmlPolicyId.getSigPolicyId()),
                 xmlPolicyId.getSigPolicyHash().getDigestMethod().getAlgorithm(),
                 xmlPolicyId.getSigPolicyHash().getDigestValue(),
-                getLocationUrl(xmlPolicyId)));
+                getLocationUrl(xmlPolicyId),
+                FromXmlUtils.getTransforms(xmlTransforms)));
     }
 
     private static String getLocationUrl(XmlSignaturePolicyIdType xmlPolicyId) throws PropertyUnmarshalException

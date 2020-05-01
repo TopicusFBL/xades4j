@@ -5,11 +5,11 @@
 // Generated on: 2010.04.09 at 09:56:29 PM BST 
 //
 
-
 package xades4j.xml.bind.xmldsig;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -19,14 +19,18 @@ import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlMixed;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
+
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import xades4j.algorithms.Algorithm;
+import xades4j.algorithms.XPath2FilterTransform;
 
 /**
  * <p>Java class for TransformType complex type.
- * 
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="TransformType"&gt;
  *   &lt;complexContent&gt;
@@ -40,77 +44,95 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- * 
- * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TransformType", propOrder = {
-    "content"
+		"content"
 })
-public class XmlTransformType {
+public class XmlTransformType
+{
 
-    @XmlElementRef(name = "XPath", namespace = "http://www.w3.org/2000/09/xmldsig#", type = JAXBElement.class)
-    @XmlMixed
-    @XmlAnyElement(lax = true)
-    protected List<Object> content;
-    @XmlAttribute(name = "Algorithm", required = true)
-    @XmlSchemaType(name = "anyURI")
-    protected String algorithm;
+	@XmlElementRef(name = "XPath", namespace = "http://www.w3.org/2000/09/xmldsig#", type = JAXBElement.class)
+	@XmlMixed
+	@XmlAnyElement(lax = true)
+	protected List<Object> content;
+	@XmlAttribute(name = "Algorithm", required = true)
+	@XmlSchemaType(name = "anyURI")
+	protected String algorithm;
 
-    /**
-     * Gets the value of the content property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the content property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getContent().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link JAXBElement }{@code <}{@link String }{@code >}
-     * {@link Object }
-     * {@link String }
-     * {@link Element }
-     * 
-     * 
-     */
-    public List<Object> getContent() {
-        if (content == null) {
-            content = new ArrayList<Object>();
-        }
-        return this.content;
-    }
+	public XmlTransformType()
+	{
+	}
 
-    /**
-     * Gets the value of the algorithm property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getAlgorithm() {
-        return algorithm;
-    }
+	public XmlTransformType(Algorithm algorithm, Document doc)
+	{
+		setAlgorithm(algorithm.getUri());
+		if (algorithm instanceof XPath2FilterTransform)
+		{
+			XPath2FilterTransform xPath2FilterTransform = (XPath2FilterTransform) algorithm;
+			for (XPath2FilterTransform.XPath2Filter filter : xPath2FilterTransform.getFilters())
+			{
+				Element node = doc.createElement("dsig-xpath:XPath");
+				node.setAttribute("xmlns:dsig-xpath", "http://www.w3.org/2002/06/xmldsig-filter2");
+				node.setAttribute("Filter", filter.getFilterType());
+				node.setTextContent(filter.getXPath());
+				getContent().add(node);
+			}
+		}
+	}
 
-    /**
-     * Sets the value of the algorithm property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setAlgorithm(String value) {
-        this.algorithm = value;
-    }
+	/**
+	 * Gets the value of the content property.
+	 *
+	 * <p>
+	 * This accessor method returns a reference to the live list,
+	 * not a snapshot. Therefore any modification you make to the
+	 * returned list will be present inside the JAXB object.
+	 * This is why there is not a <CODE>set</CODE> method for the content property.
+	 *
+	 * <p>
+	 * For example, to add a new item, do as follows:
+	 * <pre>
+	 *    getContent().add(newItem);
+	 * </pre>
+	 *
+	 *
+	 * <p>
+	 * Objects of the following type(s) are allowed in the list
+	 * {@link JAXBElement }{@code <}{@link String }{@code >}
+	 * {@link Object }
+	 * {@link String }
+	 * {@link Element }
+	 */
+	public List<Object> getContent()
+	{
+		if (content == null)
+		{
+			content = new ArrayList<Object>();
+		}
+		return this.content;
+	}
+
+	/**
+	 * Gets the value of the algorithm property.
+	 *
+	 * @return possible object is
+	 *        {@link String }
+	 */
+	public String getAlgorithm()
+	{
+		return algorithm;
+	}
+
+	/**
+	 * Sets the value of the algorithm property.
+	 *
+	 * @param value allowed object is
+	 *              {@link String }
+	 */
+	public void setAlgorithm(String value)
+	{
+		this.algorithm = value;
+	}
 
 }

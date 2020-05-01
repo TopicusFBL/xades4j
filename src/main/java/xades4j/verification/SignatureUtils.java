@@ -39,7 +39,7 @@ import xades4j.utils.DOMHelper;
  *
  * @author Luís
  */
-class SignatureUtils
+public class SignatureUtils
 {
 
     private SignatureUtils()
@@ -133,7 +133,7 @@ class SignatureUtils
     }
 
     /***************************************************************************/
-    static Element getQualifyingPropertiesElement(XMLSignature signature) throws QualifyingPropertiesIncorporationException
+    public static Element getQualifyingPropertiesElement(XMLSignature signature) throws QualifyingPropertiesIncorporationException
     {
         boolean foundXAdESContainerObject = false;
         Element qualifyingPropsElem = null;

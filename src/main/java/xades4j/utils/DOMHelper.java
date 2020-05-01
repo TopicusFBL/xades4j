@@ -18,6 +18,8 @@ package xades4j.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.xml.security.utils.Constants;
@@ -81,6 +83,7 @@ public class DOMHelper
     {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         dbf.setNamespaceAware(true);
+
         try
         {
             Document doc = dbf.newDocumentBuilder().newDocument();

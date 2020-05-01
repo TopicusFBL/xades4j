@@ -42,6 +42,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.security.auth.x500.X500Principal;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import xades4j.providers.CannotBuildCertificationPathException;
 import xades4j.providers.CannotSelectCertificateException;
 import xades4j.providers.CertificateValidationException;
@@ -67,6 +71,8 @@ public class PKIXCertificateValidationProvider implements CertificateValidationP
     private final CertStore[] intermCertsAndCrls;
     private final CertPathBuilder certPathBuilder;
     private final String signatureProvider;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PKIXCertificateValidationProvider.class);
 
     /**
      * Initializes a new instance that uses the specified JCE providers for CertPathBuilder
@@ -271,6 +277,12 @@ public class PKIXCertificateValidationProvider implements CertificateValidationP
         // the trust anchor. However, the complete path may be needed for property
         // verification.
         List<X509Certificate> certPath = (List<X509Certificate>) builderRes.getCertPath().getCertificates();
+
+        for(X509Certificate certificate : certPath)
+        {
+            LOGGER.debug("Using certificate [{}] with issuer [{}]", certificate.getSubjectX500Principal().getName(), certificate.getIssuerX500Principal().getName());
+        }
+
         // - Create a new list since the previous is immutable.
         certPath = new ArrayList<X509Certificate>(certPath);
         // - Add the trust anchor certificate.

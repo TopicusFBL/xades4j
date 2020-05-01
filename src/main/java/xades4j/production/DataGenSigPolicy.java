@@ -16,59 +16,94 @@
  */
 package xades4j.production;
 
-import com.google.inject.Inject;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.MessageDigest;
-import xades4j.properties.SignaturePolicyIdentifierProperty;
+
+import com.google.inject.Inject;
+
 import xades4j.UnsupportedAlgorithmException;
+import xades4j.policy_extension.SignaturePolicyTransformException;
+import xades4j.policy_extension.SignaturePolicyTransformer;
+import xades4j.properties.ObjectIdentifier;
+import xades4j.properties.SignaturePolicyIdentifierProperty;
 import xades4j.properties.data.PropertyDataObject;
 import xades4j.properties.data.SignaturePolicyData;
 import xades4j.providers.AlgorithmsProviderEx;
 import xades4j.providers.MessageDigestEngineProvider;
+import xades4j.providers.SignaturePolicyDocumentProvider;
 import xades4j.utils.MessageDigestUtils;
 
 /**
- *
  * @author Luís
  */
 class DataGenSigPolicy implements PropertyDataObjectGenerator<SignaturePolicyIdentifierProperty>
 {
-    private final MessageDigestEngineProvider messageDigestProvider;
-    private final AlgorithmsProviderEx algorithmsProvider;
+	private final MessageDigestEngineProvider messageDigestProvider;
+	private final AlgorithmsProviderEx algorithmsProvider;
 
-    @Inject
-    public DataGenSigPolicy(
-            MessageDigestEngineProvider messageDigestProvider,
-            AlgorithmsProviderEx algorithmsProvider)
-    {
-        this.messageDigestProvider = messageDigestProvider;
-        this.algorithmsProvider = algorithmsProvider;
-    }
+	@Inject
+	public DataGenSigPolicy(
+			MessageDigestEngineProvider messageDigestProvider,
+			AlgorithmsProviderEx algorithmsProvider)
+	{
+		this.messageDigestProvider = messageDigestProvider;
+		this.algorithmsProvider = algorithmsProvider;
+	}
 
-    @Override
-    public PropertyDataObject generatePropertyData(
-            SignaturePolicyIdentifierProperty prop,
-            PropertiesDataGenerationContext ctx) throws PropertyDataGenerationException
-    {
-        try
-        {
-            // Digest the policy document.
-            String digestAlgUri = this.algorithmsProvider.getDigestAlgorithmForReferenceProperties();
-            MessageDigest md = this.messageDigestProvider.getEngine(digestAlgUri);
-            byte[] policyDigest = MessageDigestUtils.digestStream(md, prop.getPolicyDocumentStream());
+	@Override
+	public PropertyDataObject generatePropertyData(
+			SignaturePolicyIdentifierProperty prop,
+			PropertiesDataGenerationContext ctx) throws PropertyDataGenerationException
+	{
+		try
+		{
+			// Digest the policy document.
+			String digestAlgUri = this.algorithmsProvider.getDigestAlgorithmForReferenceProperties();
+			MessageDigest md = this.messageDigestProvider.getEngine(digestAlgUri);
 
-            return new SignaturePolicyData(
-                    prop.getIdentifier(),
-                    digestAlgUri,
-                    policyDigest,
-                    prop.getLocationUrl());
+			SignaturePolicyDocumentProvider policyDocumentFinder = new PropertySignaturePolicyDocumentProvider(prop);
 
-        } catch (IOException ex)
-        {
-            throw new PropertyDataGenerationException(prop, "Cannot digest signature policy", ex);
-        } catch (UnsupportedAlgorithmException ex)
-        {
-            throw new PropertyDataGenerationException(prop, ex.getMessage(), ex);
-        }
-    }
+			SignaturePolicyTransformer signaturePolicyTransformer = new SignaturePolicyTransformer();
+			InputStream sigDocStream = signaturePolicyTransformer.processPolicyForIdentifier(policyDocumentFinder, prop.getIdentifier(), prop.getTransforms());
+
+			byte[] policyDigest = MessageDigestUtils.digestStream(md, sigDocStream);
+
+			return new SignaturePolicyData(
+					prop.getIdentifier(),
+					digestAlgUri,
+					policyDigest,
+					prop.getLocationUrl(),
+					prop.getTransforms());
+		}
+		catch (IOException ex)
+		{
+			throw new PropertyDataGenerationException(prop, "Cannot digest signature policy", ex);
+		}
+		catch (SignaturePolicyTransformException ex)
+		{
+			throw new PropertyDataGenerationException(prop, "Cannot digest signature policy", ex);
+		}
+		catch (UnsupportedAlgorithmException ex)
+		{
+			throw new PropertyDataGenerationException(prop, ex.getMessage(), ex);
+		}
+	}
+
+	private class PropertySignaturePolicyDocumentProvider implements SignaturePolicyDocumentProvider
+	{
+		private final SignaturePolicyIdentifierProperty signaturePolicyIdentifier;
+
+		public PropertySignaturePolicyDocumentProvider(SignaturePolicyIdentifierProperty signaturePolicyIdentifier)
+		{
+			this.signaturePolicyIdentifier = signaturePolicyIdentifier;
+		}
+
+		@Override
+		public InputStream getSignaturePolicyDocumentStream(
+				ObjectIdentifier sigPolicyId)
+		{
+			return signaturePolicyIdentifier.getPolicyDocumentStream();
+		}
+	}
 }
